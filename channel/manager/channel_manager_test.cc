@@ -1,7 +1,8 @@
 #include "channel_manager.h"
 #include "gtest/gtest.h"
 
-TEST(ChannelManager, OpenDL) {
+TEST(ChannelManager, OpenDL)
+{
   ChannelManager manager;
   // EXPECT_TRUE(manager.OpenChannelAuto());
   // manager.RegisterOnDataCallback(

@@ -34,12 +34,14 @@
 #include "widgets/speed_ctrl.h"
 #include "widgets/ratio_layouted_frame.h"
 QT_BEGIN_NAMESPACE
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
   Q_OBJECT
 
  public:
@@ -58,7 +60,7 @@ class MainWindow : public QMainWindow {
   virtual void closeEvent(QCloseEvent *event) override;
 
  private:
-  QAction *SavePerspectiveAction = nullptr;
+  QAction *SavePerspectiveAction       = nullptr;
   QWidgetAction *PerspectiveListAction = nullptr;
   ChannelManager channel_manager_;
   Ui::MainWindow *ui;
@@ -79,7 +81,7 @@ class MainWindow : public QMainWindow {
   std::map<std::string, RatioLayoutedFrame *> image_frame_map_;
  signals:
   void OnRecvChannelData(const MsgId &id, const std::any &data);
-  
+
  private:
   void setupUi();
   bool openChannel();
@@ -88,4 +90,4 @@ class MainWindow : public QMainWindow {
   void registerChannel();
   void SaveState();
 };
-#endif  // MAINWINDOW_H
+#endif // MAINWINDOW_H

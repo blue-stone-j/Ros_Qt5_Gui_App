@@ -4,8 +4,9 @@ PluginManager::PluginManager(/* args */) {}
 
 PluginManager::~PluginManager() {}
 
-bool PluginManager::LoadPlugins(const std::string &plugin_path) {
-  // 加载插件
+bool PluginManager::LoadPlugins(const std::string &plugin_path)
+{
+  // todo: 加载插件
   //
   return true;
 }

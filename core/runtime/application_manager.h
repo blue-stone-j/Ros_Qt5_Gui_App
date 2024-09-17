@@ -1,6 +1,7 @@
 #pragma once
 #include "mainwindow.h"
-class ApplicationManager {
+class ApplicationManager
+{
  private:
   MainWindow main_window;
 
