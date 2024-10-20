@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
-class PluginManager {
+class PluginManager
+{
  private:
   /* data */
  public:
