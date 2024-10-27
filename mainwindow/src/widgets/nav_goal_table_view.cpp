@@ -9,8 +9,13 @@
 #include "algorithm.h"
 #include "config/config_manager.h"
 #include "logger/logger.h"
-NavGoalTableView::NavGoalTableView(QWidget *_parent_widget)
-    : QTableView(_parent_widget) {
+NavGoalTableView::NavGoalTableView(QWidget *_parent_widget) :
+  QTableView(_parent_widget)
+{
+  /*
+  QStandardItemModel: a general-purpose data model. is ideal when you need to present data in a table-like or
+  hierarchical structure (similar to rows and columns in a table or nodes in a tree).
+  */
   table_model_ = new QStandardItemModel();
   setModel(table_model_);
   QStringList table_h_headers;
@@ -18,58 +23,76 @@ NavGoalTableView::NavGoalTableView(QWidget *_parent_widget)
                   << "任务状态"
                   << "删除"
                   << "运行";
+  /*
+  QHeaderView: used to manage and display headers in item views such as QTableView, QTreeView, or QListView.
+  */
   QHeaderView *headerView = new QHeaderView(Qt::Horizontal);
   headerView->setSectionResizeMode(QHeaderView::ResizeToContents);
   headerView->setSelectionBehavior(QAbstractItemView::SelectRows);
   headerView->setCascadingSectionResizes(false);
-  setSelectionBehavior(QAbstractItemView::SelectRows);
-  setSelectionMode(QAbstractItemView::SingleSelection);
+  setSelectionBehavior(QAbstractItemView::SelectRows);  //???
+  setSelectionMode(QAbstractItemView::SingleSelection); //???
   this->setHorizontalHeader(headerView);
   // 添加数据模型
   table_model_->setHorizontalHeaderLabels(table_h_headers);
-  connect(table_model_, &QStandardItemModel::itemChanged, this,
-          &NavGoalTableView::onItemChanged);
+  connect(table_model_, &QStandardItemModel::itemChanged, this, &NavGoalTableView::onItemChanged);
 }
 
 NavGoalTableView::~NavGoalTableView() {}
 
-void NavGoalTableView::onItemChanged(QStandardItem *item) {
-  if (item->column() == 0) {
+void NavGoalTableView::onItemChanged(QStandardItem *item)
+{
+  if (item->column() == 0)
+  {
     qDebug() << "点位名: " << item->text();
-  } else if (item->column() == 2) {
+  }
+  else if (item->column() == 2)
+  {
     qDebug() << "任务状态: " << item->checkState();
   }
 }
-void NavGoalTableView::UpdateTopologyMap(const TopologyMap &_topology_map) {
+
+void NavGoalTableView::UpdateTopologyMap(const TopologyMap &_topology_map)
+{
   topologyMap_ = _topology_map;
 }
-void NavGoalTableView::UpdateSelectPoint(const TopologyMap::PointInfo &point) {
-  if (!this->isEnabled())
-    return;
 
-  QWidget *widget =
-      indexWidget(model()->index(table_model_->rowCount() - 1, 0));
-  if (widget) {
+void NavGoalTableView::UpdateSelectPoint(const TopologyMap::PointInfo &point)
+{
+  if (!this->isEnabled())
+  {
+    return;
+  }
+
+  QWidget *widget = indexWidget(model()->index(table_model_->rowCount() - 1, 0));
+  if (widget)
+  {
     QComboBox *comboBox = static_cast<QComboBox *>(widget);
     if (comboBox->currentText() == "")
+    {
       comboBox->setCurrentText(point.name.c_str());
+    }
   }
 }
-void NavGoalTableView::AddItem() {
+
+void NavGoalTableView::AddItem()
+{
   QComboBox *comboBox = new QComboBox();
-  for (auto point : topologyMap_.points) {
+  for (auto point : topologyMap_.points)
+  {
     comboBox->addItem(point.name.c_str());
   }
   comboBox->addItem("");
   comboBox->setCurrentText("");
-  QLabel *label_status = new QLabel("None");
+  QLabel *label_status       = new QLabel("None");
   QPushButton *button_remove = new QPushButton("Delete");
-  QPushButton *button_run = new QPushButton("Run");
-  int row = table_model_->rowCount();
+  QPushButton *button_run    = new QPushButton("Run");
+  int row                    = table_model_->rowCount();
 
   connect(button_remove, &QPushButton::clicked, [this, row]() {
     QModelIndexList selectedIndexes = selectionModel()->selectedRows();
-    if (selectedIndexes.size() == 1) {
+    if (selectedIndexes.size() == 1)
+    {
       table_model_->removeRow(selectedIndexes[0].row());
     }
   });
@@ -80,29 +103,42 @@ void NavGoalTableView::AddItem() {
   setIndexWidget(table_model_->index(row, 2), button_remove);
   setIndexWidget(table_model_->index(row, 3), button_run);
 }
-void NavGoalTableView::StartTaskChain(bool is_loop) {
+
+void NavGoalTableView::StartTaskChain(bool is_loop)
+{
   is_task_chain_running_ = true;
+
+  /*
+  QtConcurrent: a module in Qt that provides high-level APIs for concurrent (parallel) programming, allowing developers
+  to perform tasks in separate threads without needing to manage thread creation, synchronization, or other low-level
+  details.
+  1. With QtConcurrent::map() and QtConcurrent::mapped() functions, you can apply an operation to each element
+  in a container in parallel.
+  2. It uses QFuture and QFutureWatcher to handle and monitor the results of concurrent operations, allowing easy
+  synchronization with the main thread.
+  */
   QtConcurrent::run([this, is_loop]() {
     do {
-      for (int row = 0; row < table_model_->rowCount(); ++row) {
-        QComboBox *comboBoxName =
-            static_cast<QComboBox *>(indexWidget(model()->index(row, 0)));
-        QLabel *label_status =
-            static_cast<QLabel *>(indexWidget(model()->index(row, 1)));
+      for (int row = 0; row < table_model_->rowCount(); ++row)
+      {
+        QComboBox *comboBoxName = static_cast<QComboBox *>(indexWidget(model()->index(row, 0)));
+        QLabel *label_status    = static_cast<QLabel *>(indexWidget(model()->index(row, 1)));
         label_status->setText("Running");
-        TopologyMap::PointInfo point =
-            topologyMap_.GetPoint(comboBoxName->currentText().toStdString());
-        if (point.name == "") {
+        TopologyMap::PointInfo point = topologyMap_.GetPoint(comboBoxName->currentText().toStdString());
+        if (point.name == "")
+        {
           label_status->setText("Point Not Found!");
           continue;
         }
         RobotPose target_pose = point.ToRobotPose();
         emit signalSendNavGoal(target_pose);
         RobotPose diff = absoluteDifference(target_pose, robot_pose_);
-        while (diff.mod() > 0.2 || fabs(diff.theta) > deg2rad(15)) {
+        while (diff.mod() > 0.2 || fabs(diff.theta) > deg2rad(15))
+        {
           LOG_INFO("Task chain is running diff:" << diff << " mode:" << diff.mod() << " deg:" << rad2deg(fabs(diff.theta)));
           diff = absoluteDifference(target_pose, robot_pose_);
-          if (!is_task_chain_running_) {
+          if (!is_task_chain_running_)
+          {
             emit signalTaskFinish();
             LOG_INFO("Task chain is stopped");
             return;
@@ -110,51 +146,57 @@ void NavGoalTableView::StartTaskChain(bool is_loop) {
           QThread::msleep(100);
         }
         label_status->setText("Finish");
-      }
-    } while (is_loop);
+      } // endfor: have traversed all rows, which means all movement tasks are performed
+    } while (is_loop); // end do-while: task loop is finished
 
     LOG_INFO("Task chain is finished");
     emit signalTaskFinish();
   });
 }
-bool NavGoalTableView::LoadTaskChain(const std::string &name) {
+
+bool NavGoalTableView::LoadTaskChain(const std::string &name)
+{
   // 清空模型
   table_model_->removeRows(0, table_model_->rowCount());
   std::ifstream file(name);
-  std::string json((std::istreambuf_iterator<char>(file)),
-                   std::istreambuf_iterator<char>());
+  std::string json((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
   file.close();
   JS::ParseContext parseContext(json);
   // JS::ParseContext has the member
-  if (parseContext.parseTo(task_chain_) != JS::Error::NoError) {
+  if (parseContext.parseTo(task_chain_) != JS::Error::NoError)
+  {
     std::string errorStr = parseContext.makeErrorString();
     fprintf(stderr, "Error parsing struct %s\n", errorStr.c_str());
     return false;
   }
-  for (auto point : task_chain_.points) {
+  for (auto point : task_chain_.points)
+  {
     QComboBox *comboBox = new QComboBox();
-    bool find_point = false;
-    for (auto p : topologyMap_.points) {
+    bool find_point     = false;
+    for (auto p : topologyMap_.points)
+    {
       comboBox->addItem(p.name.c_str());
-      if (point.name == p.name) {
+      if (point.name == p.name)
+      {
         find_point = true;
       }
-    }
-    if (!find_point) {
-      LOG_ERROR(
-          "Can't find point " << point.name << " in topology map skip this point!");
+    } // endfor: have added all points in map into combo
+    if (!find_point)
+    {
+      LOG_ERROR("Can't find point " << point.name << " in topology map skip this point!");
       delete comboBox;
       continue;
     }
     comboBox->setCurrentText(QString::fromStdString(point.name));
-    QLabel *label_status = new QLabel("None");
+    QLabel *label_status       = new QLabel("None");
     QPushButton *button_remove = new QPushButton("Delete");
-    QPushButton *button_run = new QPushButton("Run");
-    int row = table_model_->rowCount();
+    QPushButton *button_run    = new QPushButton("Run");
+    int row                    = table_model_->rowCount();
 
     connect(button_remove, &QPushButton::clicked, [this, row]() {
       QModelIndexList selectedIndexes = selectionModel()->selectedRows();
-      if (selectedIndexes.size() == 1) {
+      if (selectedIndexes.size() == 1)
+      {
         table_model_->removeRow(selectedIndexes[0].row());
       }
     });
@@ -164,32 +206,37 @@ bool NavGoalTableView::LoadTaskChain(const std::string &name) {
     setIndexWidget(table_model_->index(row, 1), label_status);
     setIndexWidget(table_model_->index(row, 2), button_remove);
     setIndexWidget(table_model_->index(row, 3), button_run);
-  }
+  } // endfor: have loaded all points in task chain(from json) into task table
   return true;
 }
-bool NavGoalTableView::SaveTaskChain(const std::string &name) {
-  for (int row = 0; row < table_model_->rowCount(); ++row) {
-    QComboBox *comboBoxName =
-        static_cast<QComboBox *>(indexWidget(model()->index(row, 0)));
-    QLabel *label_status =
-        static_cast<QLabel *>(indexWidget(model()->index(row, 1)));
+bool NavGoalTableView::SaveTaskChain(const std::string &name)
+{
+  for (int row = 0; row < table_model_->rowCount(); ++row)
+  {
+    QComboBox *comboBoxName = static_cast<QComboBox *>(indexWidget(model()->index(row, 0)));
+    QLabel *label_status    = static_cast<QLabel *>(indexWidget(model()->index(row, 1)));
     label_status->setText("Running");
-    TopologyMap::PointInfo point =
-        topologyMap_.GetPoint(comboBoxName->currentText().toStdString());
-    if (point.name == "") {
+    TopologyMap::PointInfo point = topologyMap_.GetPoint(comboBoxName->currentText().toStdString());
+    if (point.name == "")
+    {
       label_status->setText("Point Not Found!");
       continue;
     }
     task_chain_.points.push_back(point);
-  }
+  } // endfor: have stored all points
   std::string pretty_json = JS::serializeStruct(task_chain_);
   return Config::ConfigManager::writeStringToFile(name, pretty_json);
 }
-void NavGoalTableView::StopTaskChain() {
-  if (is_task_chain_running_) {
+
+void NavGoalTableView::StopTaskChain()
+{
+  if (is_task_chain_running_)
+  {
     is_task_chain_running_ = false;
   }
 }
-void NavGoalTableView::UpdateRobotPose(const RobotPose &pose) {
+
+void NavGoalTableView::UpdateRobotPose(const RobotPose &pose)
+{
   robot_pose_ = pose;
 }

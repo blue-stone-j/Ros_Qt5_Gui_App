@@ -8,13 +8,15 @@
 #include <QTimer>
 #include <QWidget>
 #include <QtMath>
-class JoyStick : public QWidget {
+class JoyStick : public QWidget
+{
   Q_OBJECT
 
  public:
   JoyStick(QWidget *parent = 0);
   ~JoyStick();
-  enum Direction {
+  enum Direction
+  {
     upleft = 0,
     up,
     upright,
@@ -37,19 +39,19 @@ class JoyStick : public QWidget {
  private:
   int mouseX;
   int mouseY;
-  int JoyStickX;  //摇杆
+  int JoyStickX; // 摇杆
   int JoyStickY;
   int JoyStickR;
-  int padX;  //底盘
+  int padX; // 底盘
   int padY;
   int padR;
-  double handPadDis;  //两圆圆心距离
+  double handPadDis; // 两圆圆心距离
   bool mousePressed;
   QTimer *tim;
 
  private:
-  double Pointdis(int a, int b, int x, int y);  //两点距离
+  double Pointdis(int a, int b, int x, int y); // 两点距离
   int getKeyNum();
 };
 
-#endif  // JoyStick_H
+#endif // JoyStick_H

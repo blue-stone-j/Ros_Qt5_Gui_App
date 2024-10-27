@@ -13,13 +13,18 @@
 #include "point_type.h"
 #include "widgets/joystick.h"
 using namespace basic;
-class NavGoalWidget : public QWidget {
+class NavGoalWidget : public QWidget
+{
   Q_OBJECT
  public:
-  enum HandleResult { kSend = 0,
-                      kRemove = 1,
-                      kCancel = 2 };
-  struct PointInfo {
+  enum HandleResult
+  {
+    kSend   = 0,
+    kRemove = 1,
+    kCancel = 2
+  };
+  struct PointInfo
+  {
     RobotPose pose;
     QString name;
   };

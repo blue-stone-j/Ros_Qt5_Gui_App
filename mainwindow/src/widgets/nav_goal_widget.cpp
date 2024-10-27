@@ -3,7 +3,9 @@
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QPushButton>
-NavGoalWidget::NavGoalWidget(QWidget *parent) : QWidget(parent) {
+NavGoalWidget::NavGoalWidget(QWidget *parent) :
+  QWidget(parent)
+{
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setSpacing(0);
   QHBoxLayout *layout_name = new QHBoxLayout();
@@ -38,7 +40,7 @@ NavGoalWidget::NavGoalWidget(QWidget *parent) : QWidget(parent) {
   layout_z->setSpacing(0);
 
   QLabel *label_z = new QLabel("theta:");
-  spinBox_theta_ = new QDoubleSpinBox();
+  spinBox_theta_  = new QDoubleSpinBox();
   spinBox_theta_->setRange(-180, 180);
   spinBox_theta_->setSingleStep(1);
   layout_z->addWidget(label_z);
@@ -47,7 +49,7 @@ NavGoalWidget::NavGoalWidget(QWidget *parent) : QWidget(parent) {
   label_z->setMaximumSize(40, 30);
   QVBoxLayout *layout_button = new QVBoxLayout();
   layout_button->setSpacing(0);
-  QPushButton *button_send = new QPushButton("Move");
+  QPushButton *button_send   = new QPushButton("Move");
   QPushButton *button_remove = new QPushButton("Delete");
   QPushButton *button_cancel = new QPushButton("Close");
   layout_button->addWidget(button_send);
@@ -57,7 +59,7 @@ NavGoalWidget::NavGoalWidget(QWidget *parent) : QWidget(parent) {
   layout->addLayout(layout_y);
   layout->addLayout(layout_z);
   layout->addLayout(layout_button);
-  //   QPalette pal = childWidget->palette();
+  // QPalette pal = childWidget->palette();
   this->setLayout(layout);
   connect(spinBox_x_, SIGNAL(valueChanged(double)), this,
           SLOT(SlotUpdateValue(double)));
@@ -65,40 +67,47 @@ NavGoalWidget::NavGoalWidget(QWidget *parent) : QWidget(parent) {
           SLOT(SlotUpdateValue(double)));
   connect(spinBox_theta_, SIGNAL(valueChanged(double)), this,
           SLOT(SlotUpdateValue(double)));
+
   connect(button_send, &QPushButton::clicked, [this]() {
     emit SignalHandleOver(HandleResult::kSend,
-                          RobotPose(spinBox_x_->value(), spinBox_y_->value(),
-                                    deg2rad(spinBox_theta_->value())));
+                          RobotPose(spinBox_x_->value(), spinBox_y_->value(), deg2rad(spinBox_theta_->value())));
   });
   connect(button_cancel, &QPushButton::clicked, [this]() {
     emit SignalHandleOver(HandleResult::kCancel,
-                          RobotPose(spinBox_x_->value(), spinBox_y_->value(),
-                                    deg2rad(spinBox_theta_->value())));
+                          RobotPose(spinBox_x_->value(), spinBox_y_->value(), deg2rad(spinBox_theta_->value())));
   });
   connect(button_remove, &QPushButton::clicked, [this]() {
     emit SignalHandleOver(HandleResult::kRemove,
-                          RobotPose(spinBox_x_->value(), spinBox_y_->value(),
-                                    deg2rad(spinBox_theta_->value())));
+                          RobotPose(spinBox_x_->value(), spinBox_y_->value(), deg2rad(spinBox_theta_->value())));
   });
 }
-void NavGoalWidget::SlotUpdateValue(double value) {
-  emit SignalPoseChanged(RobotPose(spinBox_x_->value(), spinBox_y_->value(),
-                                   deg2rad(spinBox_theta_->value())));
+void NavGoalWidget::SlotUpdateValue(double value)
+{
+  emit SignalPoseChanged(RobotPose(spinBox_x_->value(), spinBox_y_->value(), deg2rad(spinBox_theta_->value())));
 }
-void NavGoalWidget::SetEditEnabled(bool flag) {
+void NavGoalWidget::SetEditEnabled(bool flag)
+{
   spinBox_x_->setEnabled(flag);
   spinBox_y_->setEnabled(flag);
   spinBox_theta_->setEnabled(flag);
   lineEdit_name_->setEnabled(flag);
 }
-void NavGoalWidget::SetPose(const PointInfo &info) {
+void NavGoalWidget::SetPose(const PointInfo &info)
+{
+  /*
+  prevents the object (in this case, QDoubleSpinBox) from emitting any signals. This can be useful in scenarios where
+  you want to modify the state of the widget or update its value without triggering any signal handlers that are
+  connected to the valueChanged() signal or other signals.
+  */
   spinBox_x_->blockSignals(true);
   spinBox_y_->blockSignals(true);
   spinBox_theta_->blockSignals(true);
+
   spinBox_x_->setValue(info.pose.x);
   spinBox_y_->setValue(info.pose.y);
   spinBox_theta_->setValue(rad2deg(info.pose.theta));
   lineEdit_name_->setText(info.name);
+
   spinBox_x_->blockSignals(false);
   spinBox_y_->blockSignals(false);
   spinBox_theta_->blockSignals(false);

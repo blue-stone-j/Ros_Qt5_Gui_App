@@ -12,7 +12,8 @@
 #include "point_type.h"
 #include "widgets/joystick.h"
 using namespace basic;
-class SetPoseWidget : public QWidget {
+class SetPoseWidget : public QWidget
+{
   Q_OBJECT
  private:
   QDoubleSpinBox *spinBox_x_;

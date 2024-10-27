@@ -50,60 +50,62 @@
 class RatioLayoutedFrame
   : public QFrame
 {
-
   Q_OBJECT
 
-public:
-
-  RatioLayoutedFrame(QWidget* parent=nullptr, Qt::WindowFlags flags = 0);
+ public:
+  RatioLayoutedFrame(QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
 
   virtual ~RatioLayoutedFrame();
 
-  const QImage& getImage() const;
+  const QImage &getImage() const;
 
   QImage getImageCopy() const;
 
-  void setImage(const QImage& image);
+  void setImage(const QImage &image);
 
   QRect getAspectRatioCorrectPaintArea();
 
   void resizeToFitAspectRatio();
 
-  void setOuterLayout(QHBoxLayout* outer_layout);
+  void setOuterLayout(QHBoxLayout *outer_layout);
 
-  void setInnerFrameMinimumSize(const QSize& size);
+  void setInnerFrameMinimumSize(const QSize &size);
 
-  void setInnerFrameMaximumSize(const QSize& size);
+  void setInnerFrameMaximumSize(const QSize &size);
 
-  void setInnerFrameFixedSize(const QSize& size);
+  void setInnerFrameFixedSize(const QSize &size);
 
-signals:
+ signals:
 
   void delayed_update();
 
   void mouseLeft(int x, int y);
 
-protected slots:
+ protected slots:
 
   void onSmoothImageChanged(bool checked);
 
-protected:
-
+ protected:
   void setAspectRatio(unsigned short width, unsigned short height);
 
-  void paintEvent(QPaintEvent* event);
+  void paintEvent(QPaintEvent *event);
 
-private:
-
+ private:
   static int greatestCommonDivisor(int a, int b);
 
-  void mousePressEvent(QMouseEvent * mouseEvent);
+  void mousePressEvent(QMouseEvent *mouseEvent);
 
-  QHBoxLayout* outer_layout_;
+  QHBoxLayout *outer_layout_;
 
   QSize aspect_ratio_;
 
-  QImage qimage_;
+  QImage qimage_; //???
+  /*
+  mutable: the keyword mutable allows you to modify a member variable of a class or struct even if the instance of the
+  class is declared as const. Normally, when an object is declared as const, all of its member variables are implicitly
+  considered const and cannot be modified. However, marking a member variable with mutable provides an exception to
+  this rule.
+  */
   mutable QMutex qimage_mutex_;
 
   bool smoothImage_;

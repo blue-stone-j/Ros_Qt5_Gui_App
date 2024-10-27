@@ -7,45 +7,52 @@
 #include <QtGui/QFontDatabase>
 
 #include "QDebug"
-DashBoard::DashBoard(QWidget* parent)
-    : QWidget(parent),
-      _gear(kGear_4),
-      _rpm(0),
-      _speed(0),
-      _temperature(0),
-      _oil(0) {
+DashBoard::DashBoard(QWidget *parent) :
+  QWidget(parent),
+  _gear(kGear_4),
+  _rpm(0),
+  _speed(0),
+  _temperature(0),
+  _oil(0)
+{
   QFontDatabase::addApplicationFont(":/fonts/DejaVuSans.ttf");
   this->resize(parent->size());
   this->parent = parent;
 }
 
-void DashBoard::set_gear(const DashBoard::Gear gear) {
+void DashBoard::set_gear(const DashBoard::Gear gear)
+{
   _gear = gear;
   update();
 }
 
-void DashBoard::set_rpm(const int rpm) {
+void DashBoard::set_rpm(const int rpm)
+{
   _rpm = rpm;
   update();
 }
 
-void DashBoard::set_speed(const int speed) {
+void DashBoard::set_speed(const int speed)
+{
   _speed = speed;
-  _rpm = speed;
+  _rpm   = speed;
   update();
 }
 
-void DashBoard::set_temperature(const double temperature) {
+void DashBoard::set_temperature(const double temperature)
+{
   _temperature = temperature;
   update();
 }
 
-void DashBoard::set_oil(const int oil) {
+void DashBoard::set_oil(const int oil)
+{
   _oil = oil;
   update();
 }
 
-void DashBoard::paintEvent(QPaintEvent* event) {
+void DashBoard::paintEvent(QPaintEvent *event)
+{
   this->resize(parent->size());
   QWidget::paintEvent(event);
 
@@ -65,7 +72,8 @@ void DashBoard::paintEvent(QPaintEvent* event) {
   draw_oil_meter(painter);
 }
 
-void DashBoard::draw_tachometer(QPainter& painter) {
+void DashBoard::draw_tachometer(QPainter &painter)
+{
   static QColor normal_color(18, 11, 10, 245);
   static QColor overrun_color(245, 64, 64, 225);
 
@@ -91,7 +99,8 @@ void DashBoard::draw_tachometer(QPainter& painter) {
   painter.save();
   painter.setPen(QPen(normal_color, 1, Qt::SolidLine));
   painter.rotate(90);
-  for (int i = 0; i < 21; ++i) {
+  for (int i = 0; i < 21; ++i)
+  {
     painter.drawLine(88, 0, 94, 0);
     painter.rotate(13.5);
   }
@@ -101,7 +110,8 @@ void DashBoard::draw_tachometer(QPainter& painter) {
   painter.save();
   painter.setPen(QPen(normal_color, 1, Qt::SolidLine));
   painter.rotate(90);
-  for (int i = 0; i < 100; ++i) {
+  for (int i = 0; i < 100; ++i)
+  {
     painter.drawLine(91, 0, 94, 0);
     painter.rotate(2.7);
   }
@@ -112,23 +122,23 @@ void DashBoard::draw_tachometer(QPainter& painter) {
   painter.rotate(90);
   painter.setPen(normal_color);
   painter.setFont(QFont("Times", 14));
-  for (int i = 0; i < 11; ++i) {
+  for (int i = 0; i < 11; ++i)
+  {
     painter.save();
-    if (i > 6) {
+    if (i > 6)
+    {
       painter.setPen(overrun_color);
     }
     painter.rotate(27.0 * i);
     painter.translate(76, 0);
     painter.rotate(270 - 27.0 * i);
-    painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter,
-                     QString::number(i));
+    painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter, QString::number(i));
     painter.restore();
   }
   painter.restore();
 
   // 绘制指针
-  static const QPoint hand[] = {QPoint(-4, 0), QPoint(0, 94), QPoint(4, 0),
-                                QPoint(0, -6)};
+  static const QPoint hand[] = {QPoint(-4, 0), QPoint(0, 94), QPoint(4, 0), QPoint(0, -6)};
   static QColor hand_color(0x88, 0x37, 0x4f, 176);
   painter.save();
   painter.setPen(Qt::NoPen);
@@ -147,7 +157,8 @@ void DashBoard::draw_tachometer(QPainter& painter) {
   painter.restore();
 }
 
-void DashBoard::draw_speedometer(QPainter& painter) {
+void DashBoard::draw_speedometer(QPainter &painter)
+{
   painter.save();
 
   painter.setPen(QColor(64, 64, 245));
@@ -161,13 +172,13 @@ void DashBoard::draw_speedometer(QPainter& painter) {
 
   painter.setPen(QColor(26, 245, 245));
   painter.setFont(QFont("DejaVu Sans", 8, 63, true));
-  painter.drawText(QRect(145, 75, 40, 20), Qt::AlignBottom | Qt::AlignLeft,
-                   "cm/s");
+  painter.drawText(QRect(145, 75, 40, 20), Qt::AlignBottom | Qt::AlignLeft, "cm/s");
 
   painter.restore();
 }
 
-void DashBoard::draw_gear(QPainter& painter) {
+void DashBoard::draw_gear(QPainter &painter)
+{
   static QRect gear_rect(0, 0, 80, 80);
   static QRect suffix_rect(48, 48, 32, 32);
   static QFont suffix_font("DejaVu Sans", 16, 63, true);
@@ -176,7 +187,8 @@ void DashBoard::draw_gear(QPainter& painter) {
   painter.setPen(QPen(QColor(26, 245, 245), 1, Qt::SolidLine));
   painter.setFont(QFont("DejaVu Sans", 48, 63, true));
 
-  switch (_gear) {
+  switch (_gear)
+  {
     case kGear_1:
       painter.drawText(gear_rect, Qt::AlignCenter, QString::number(_gear));
       painter.setFont(suffix_font);
@@ -220,11 +232,11 @@ void DashBoard::draw_gear(QPainter& painter) {
   painter.restore();
 }
 
-void DashBoard::draw_thermometer(QPainter& painter) {
+void DashBoard::draw_thermometer(QPainter &painter)
+{
   painter.save();
 
-  painter.drawImage(QRect(115, -60, 8, 16),
-                    QImage("://images/temperature-icon.png"));
+  painter.drawImage(QRect(115, -60, 8, 16), QImage("://images/temperature-icon.png"));
 
   painter.translate(-160, 100);
 
@@ -258,24 +270,21 @@ void DashBoard::draw_thermometer(QPainter& painter) {
   painter.save();
   painter.translate(316, 0);
   painter.rotate(12);
-  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter,
-                   QString::number(0) + "°C");
+  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter, QString::number(0) + "°C");
   painter.restore();
 
   painter.rotate(-10);
   painter.save();
   painter.translate(317, 0);
   painter.rotate(22);
-  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter,
-                   QString::number(50) + "°C");
+  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter, QString::number(50) + "°C");
   painter.restore();
 
   painter.rotate(-10);
   painter.save();
   painter.translate(320, 0);
   painter.rotate(32);
-  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter,
-                   QString::number(100) + "°C");
+  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter, QString::number(100) + "°C");
   painter.restore();
 
   painter.restore();
@@ -301,11 +310,11 @@ void DashBoard::draw_thermometer(QPainter& painter) {
   painter.restore();
 }
 
-void DashBoard::draw_oil_meter(QPainter& painter) {
+void DashBoard::draw_oil_meter(QPainter &painter)
+{
   painter.save();
 
-  painter.drawImage(QRect(-130, -60, 16, 16),
-                    QImage("://images/fuel-icon.png"));
+  painter.drawImage(QRect(-130, -60, 16, 16), QImage("://images/fuel-icon.png"));
 
   painter.translate(160, 100);
   painter.rotate(180);
@@ -340,24 +349,21 @@ void DashBoard::draw_oil_meter(QPainter& painter) {
   painter.save();
   painter.translate(316, 0);
   painter.rotate(168);
-  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter,
-                   QString::number(0) + "%");
+  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter, QString::number(0) + "%");
   painter.restore();
 
   painter.rotate(10);
   painter.save();
   painter.translate(317, 0);
   painter.rotate(158);
-  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter,
-                   QString::number(50) + "%");
+  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter, QString::number(50) + "%");
   painter.restore();
 
   painter.rotate(10);
   painter.save();
   painter.translate(320, 0);
   painter.rotate(148);
-  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter,
-                   QString::number(100) + "%");
+  painter.drawText(QRect(-20, -10, 40, 20), Qt::AlignCenter, QString::number(100) + "%");
   painter.restore();
 
   painter.restore();

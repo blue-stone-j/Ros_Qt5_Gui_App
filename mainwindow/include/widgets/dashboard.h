@@ -3,10 +3,12 @@
 
 #include <QWidget>
 
-class DashBoard : public QWidget {
+class DashBoard : public QWidget
+{
   Q_OBJECT
  public:
-  enum Gear {
+  enum Gear
+  {
     kGear_1 = 1,
     kGear_2,
     kGear_3,
@@ -22,7 +24,7 @@ class DashBoard : public QWidget {
   };
 
  public:
-  explicit DashBoard(QWidget* parent = nullptr);
+  explicit DashBoard(QWidget *parent = nullptr);
 
  public slots:
   void set_gear(const Gear gear);
@@ -32,14 +34,14 @@ class DashBoard : public QWidget {
   void set_oil(const int oil);
 
  protected:
-  void paintEvent(QPaintEvent* event);
+  void paintEvent(QPaintEvent *event);
 
  private:
-  void draw_tachometer(QPainter& painter);   // 转速表
-  void draw_speedometer(QPainter& painter);  // 迈速表
-  void draw_gear(QPainter& painter);         // 挡位
-  void draw_thermometer(QPainter& painter);  // 水箱温度计
-  void draw_oil_meter(QPainter& painter);    // 油表
+  void draw_tachometer(QPainter &painter);  // 转速表
+  void draw_speedometer(QPainter &painter); // 迈速表
+  void draw_gear(QPainter &painter);        // 挡位
+  void draw_thermometer(QPainter &painter); // 水箱温度计
+  void draw_oil_meter(QPainter &painter);   // 油表
 
  private:
   Gear _gear{kGear_N};
@@ -47,7 +49,7 @@ class DashBoard : public QWidget {
   int _speed;
   double _temperature;
   int _oil;
-  QWidget* parent;
+  QWidget *parent;
 };
 
-#endif  // DASHBOARD_H
+#endif // DASHBOARD_H
